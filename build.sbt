@@ -2,20 +2,10 @@ name := "spark-example-project"
 
 version := "1.0.0-SNAPSHOT"
 
-// All Spark Packages need a license
-licenses := Seq("Apache-2.0" -> url("http://opensource.org/licenses/Apache-2.0"))
-
 scalaVersion := "2.11.12"
-// force scalaVersion
-//ivyScala := ivyScala.value map { _.copy(overrideScalaVersion = true) }
-
-val sparkVersion = "2.2.1"
 
 // Needed as SBT's classloader doesn't work well with Spark
 fork := true
-
-// BUG: unfortunately, it's not supported right now
-fork in console := true
 
 // Java version
 javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
@@ -38,25 +28,21 @@ resolvers ++= Seq(
   "Apache Staging" at "https://repository.apache.org/content/repositories/staging/"
 )
 
-// copy all dependencies into lib_managed/
-//retrieveManaged := true
-
 val sparkDependencyScope = "compile"
 
-libraryDependencies ++= Seq(
-  "org.apache.spark" %% "spark-core" % sparkVersion,
-  "org.apache.spark" %% "spark-sql" % sparkVersion,
-  "org.apache.spark" %% "spark-mllib" % sparkVersion,
-  "org.apache.spark" %% "spark-streaming" % sparkVersion,
-  "org.apache.spark" %% "spark-hive" % sparkVersion,
+libraryDependencies ++= {
+  val sparkVersion = "2.3.1"
+  Seq(
+    "org.apache.spark" %% "spark-core" % sparkVersion,
+    "org.apache.spark" %% "spark-sql" % sparkVersion,
+    "org.apache.spark" %% "spark-streaming" % sparkVersion,
 
-  "io.spray" %% "spray-json" % "1.3.4",
-  "net.virtual-void" %% "json-lenses" % "0.6.2",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",
-  "com.google.guava" % "guava" % "23.0" force(),
-  "org.apache.hadoop" % "hadoop-mapreduce-client-core" % "2.9.0" force(),
-  "org.apache.hadoop" % "hadoop-common" % "2.9.0"
-)
+    "io.spray" %% "spray-json" % "1.3.4",
+    "net.virtual-void" %% "json-lenses" % "0.6.2",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",
+    "com.google.guava" % "guava" % "23.0" force()
+  )
+}
 
 /// console
 

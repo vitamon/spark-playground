@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <jmxConfigurator/>
+
+    <property name="layout.pattern" value="%d{MM-dd HH:mm:ss}[%p]%c{1}:%line:%m%n"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${layout.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="io.netty" level="WARN"/>
+    <logger name="org.apache.spark" level="OFF"/>
+    <logger name="org.spark_project" level="OFF"/>
+    <logger name="org.jboss" level="INFO"/>
+
+    <root level="DEBUG">
+        <appender-ref ref="console"/>
+    </root>
+
+</configuration>
