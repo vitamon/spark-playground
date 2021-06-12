@@ -20,3 +20,9 @@ project/plugins/project/
 .idea_modules/
 out/
 *.iml
+
+# Ignore Gradle project-specific cache directory
+.gradle
+
+build
+/data/results/

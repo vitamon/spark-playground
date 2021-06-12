@@ -1,4 +1,4 @@
-package me.soulmachine.spark
+package my.spark.playground
 
 import java.io.File
 import org.apache.commons.io.FileUtils

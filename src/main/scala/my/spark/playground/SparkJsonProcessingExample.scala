@@ -1,11 +1,12 @@
-package me.soulmachine.spark
+package my.spark.playground
 
-import java.io.File
 import org.apache.commons.io.FileUtils
 import org.apache.spark._
-import spray.json.DefaultJsonProtocol._
 import spray.json._
+import spray.json.DefaultJsonProtocol._
 import spray.json.lenses.JsonLenses._
+
+import java.io.File
 
 object Main extends App {
 
@@ -49,9 +50,9 @@ class SparkExample {
       new SparkContext(conf)
     }
 
-    val results = sc.textFile(input).
-      filter(_.contains("hvac_pins")).
-      flatMap { str =>
+    val results = sc.textFile(input)
+      .filter(_.contains("hvac_pins"))
+      .flatMap { str =>
         val Array(ind, json) = str.split(",", 2)
         val js = json.parseJson.asJsObject
 
@@ -61,14 +62,13 @@ class SparkExample {
         parseConfigs(js).map { hv =>
           (ind, hv.mkString("-"), email, post)
         }
-
-      }.
-      filter(_._2.nonEmpty).
-      groupBy(_._2).
-      map { case (key, lst) =>
+      }
+      .filter(_._2.nonEmpty)
+      .groupBy(_._2)
+      .map { case (key, lst) =>
         (key, lst.size)
-      }.
-      sortBy(_._2, ascending = false).map {
+      }
+      .sortBy(_._2, ascending = false).map {
       case (key, size) =>
         s"$key, $size"
     }
