@@ -12,7 +12,7 @@ import zio.console._
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-object MainSparkSql extends zio.App {
+object MainSparkSqlZio extends zio.App {
 
   def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = myAppLogic.exitCode
 
