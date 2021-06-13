@@ -13,12 +13,13 @@ object MiscFileUtils {
       .csv(fname)
 
   def writeToCsv(folder: String, query: String)(implicit spark: SparkSession): Unit =
-    spark
-      .sql(query)
-      .coalesce(1)
+    writeToCsv(folder, spark.sql(query))
+
+  def writeToCsv(folder: String, df: DataFrame): Unit =
+    df.coalesce(1)
       .write
       .mode(SaveMode.Overwrite)
-      .option("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false") //Avoid creating of crc files
+      .option("mapreduce.fileoutputcommitter.marksuccessfuljobs", "false") //Avoid creating of success crc files
       .option("header", "true")
       .csv(folder)
 

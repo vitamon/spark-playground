@@ -12,7 +12,7 @@ import zio.console._
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-object Main extends zio.App {
+object MainDatasetsZio extends zio.App {
 
   def run(args: List[String]): URIO[zio.ZEnv, ExitCode] = myAppLogic.exitCode
 
@@ -28,7 +28,6 @@ object Main extends zio.App {
   val airportsFile  = "./data/airports.csv"
   val countriesFile = "./data/countries.csv"
   val runWaysFile   = "./data/runways.csv"
-
 
   val myAppLogic: ZIO[zio.ZEnv, Throwable, Unit] = for {
     startTime <- currentTime(TimeUnit.MILLISECONDS)
@@ -51,16 +50,21 @@ object Main extends zio.App {
 
   def processData(reportOutputDir: String)(implicit spark: SparkSession): ZIO[zio.ZEnv, Throwable, Unit] =
     for {
-      airportsF <- effectBlocking(readCsv(airportsFile, spark)).map(_.createOrReplaceTempView("airports")).fork
-      countriesF <- effectBlocking(readCsv(countriesFile, spark)).map(_.createOrReplaceTempView("countries")).fork
-      runWaysF <- effectBlocking(readCsv(runWaysFile, spark)).map(_.createOrReplaceTempView("runways")).fork
+      airportsF <- effectBlocking(readCsv(airportsFile, spark)).fork
+      countriesF <- effectBlocking(readCsv(countriesFile, spark)).fork
+      runWaysF <- effectBlocking(readCsv(runWaysFile, spark)).fork
 
-      _ <- ZIO.collectAll(Seq(airportsF.join, countriesF.join, runWaysF.join))
+      airports <- airportsF.join
+      countries <- countriesF.join
+      runWays <- runWaysF.join
 
-      f1 <- effectBlocking(writeToCsv(reportOutputDir + "/report1", Queries.countriesToAirports)).fork
-      f2 <- effectBlocking(writeToCsv(reportOutputDir + "/report2", Queries.topAirports)).fork
-      f3 <- effectBlocking(writeToCsv(reportOutputDir + "/report3", Queries.topRunways)).fork
-      _ <- Task.collectAll(Seq(f1.join, f2.join, f3.join))
+      result1 <- Task(Queries.queryCountriesToAirports(countries, airports))
+      result2 <- Task(Queries.queryAirports(countries, runWays, airports))
+      result3 <- Task(Queries.queryRunways(runWays))
+
+      _ <- effectBlocking(writeToCsv(reportOutputDir + "/report1", result1))
+      _ <- effectBlocking(writeToCsv(reportOutputDir + "/report2", result2))
+      _ <- effectBlocking(writeToCsv(reportOutputDir + "/report3", result3))
     } yield ()
 
 }
